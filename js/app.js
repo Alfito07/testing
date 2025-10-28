@@ -566,7 +566,7 @@ class EnhancedApp {
       tiket: document
         .getElementById("inputTiketPelanggan")
         .value.trim()
-        .toUpperCase(),
+        .toUpperCase(), // ✅ KIRIM SEBAGAI 'tiket'
       id_pelanggan:
         document.getElementById("inputIdPelanggan").value.trim() || "",
       kategori: document.getElementById("selectKategori").value,

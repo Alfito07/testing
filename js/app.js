@@ -477,23 +477,108 @@ class EnhancedApp {
   initTicketForm() {
     const form = document.getElementById("ticketForm");
     if (form) {
+      // Remove existing listener dan tambahkan yang baru
+      form.removeEventListener("submit", this.handleCreateTicket);
       form.addEventListener("submit", (e) => this.handleCreateTicket(e));
+
+      // Add real-time validation
+      this.initFormValidation();
     }
+  }
+
+  initFormValidation() {
+    const fields = [
+      { id: "inputNamaPelanggan", errorId: "errorNamaPelanggan" },
+      { id: "inputTiketPelanggan", errorId: "errorTiketPelanggan" },
+      { id: "selectRegion", errorId: "errorRegion" },
+      { id: "selectKategori", errorId: "errorKategori" },
+      { id: "selectKeperluan", errorId: "errorKeperluan" },
+    ];
+
+    fields.forEach((field) => {
+      const element = document.getElementById(field.id);
+      const errorElement = document.getElementById(field.errorId);
+
+      if (element && errorElement) {
+        // Real-time validation on input change
+        element.addEventListener("input", () => {
+          this.validateField(element, errorElement);
+        });
+
+        element.addEventListener("blur", () => {
+          this.validateField(element, errorElement);
+        });
+
+        // For select elements, validate on change
+        if (element.tagName === "SELECT") {
+          element.addEventListener("change", () => {
+            this.validateField(element, errorElement);
+          });
+        }
+      }
+    });
+  }
+
+  validateField(field, errorElement) {
+    const value = field.value.trim();
+
+    if (field.hasAttribute("required") && !value) {
+      this.showError(
+        field,
+        errorElement,
+        `${field.previousElementSibling?.textContent
+          ?.replace("*", "")
+          .trim()} wajib diisi`
+      );
+      return false;
+    }
+
+    // Special validation for ticket number
+    if (field.id === "inputTiketPelanggan" && value) {
+      if (!Utils.isValidTicket(value)) {
+        this.showError(
+          field,
+          errorElement,
+          "Format tiket tidak valid. Contoh: RYZN1001"
+        );
+        return false;
+      }
+    }
+
+    // If validation passed
+    this.hideError(field, errorElement);
+    return true;
   }
 
   async handleCreateTicket(e) {
     e.preventDefault();
 
+    console.log("🎫 Creating new ticket...");
+
+    // Validate form first
+    if (!this.validateForm()) {
+      Utils.showToast("Harap perbaiki error pada form sebelum submit", "error");
+      return;
+    }
+
     const formData = {
-      nama: document.getElementById("inputNamaPelanggan").value,
-      id_pelanggan: document.getElementById("inputIdPelanggan").value,
+      nama: document.getElementById("inputNamaPelanggan").value.trim(),
+      tiket: document
+        .getElementById("inputTiketPelanggan")
+        .value.trim()
+        .toUpperCase(),
+      id_pelanggan:
+        document.getElementById("inputIdPelanggan").value.trim() || "",
       kategori: document.getElementById("selectKategori").value,
       keperluan: document.getElementById("selectKeperluan").value,
       region: document.getElementById("selectRegion").value,
     };
 
-    if (!formData.nama || !formData.kategori || !formData.keperluan) {
-      alert("Harap isi semua field yang wajib!");
+    console.log("📦 Form data:", formData);
+
+    // Additional validation
+    if (!Utils.isValidTicket(formData.tiket)) {
+      Utils.showToast("Format nomor tiket tidak valid", "error");
       return;
     }
 
@@ -504,7 +589,13 @@ class EnhancedApp {
       this.showTicketResult(result);
 
       if (result.success) {
+        // Reset form setelah sukses
         document.getElementById("ticketForm").reset();
+
+        // Reset visual state
+        this.resetFormValidation();
+
+        // Refresh ticket list
         setTimeout(() => this.loadOutboundTickets(), 2000);
       }
     } catch (error) {
@@ -515,6 +606,31 @@ class EnhancedApp {
     } finally {
       Utils.hideLoading();
     }
+  }
+
+  resetFormValidation() {
+    const fields = [
+      "inputNamaPelanggan",
+      "inputTiketPelanggan",
+      "selectRegion",
+      "selectKategori",
+      "selectKeperluan",
+      "inputIdPelanggan",
+    ];
+
+    fields.forEach((fieldId) => {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.classList.remove("border-red-500", "bg-red-50");
+        field.classList.add("border-gray-300");
+      }
+    });
+
+    // Hide all error messages
+    const errorElements = document.querySelectorAll('[id^="error"]');
+    errorElements.forEach((element) => {
+      element.classList.add("hidden");
+    });
   }
 
   async assignToMe(ticketId) {
@@ -831,8 +947,42 @@ class EnhancedApp {
     return div.innerHTML;
   }
 
-  showError(message) {
-    Utils.showToast(message, "error");
+  showError(field, errorElement, message) {
+    field.classList.add("border-red-500", "bg-red-50");
+    field.classList.remove("border-gray-300");
+    errorElement.textContent = message;
+    errorElement.classList.remove("hidden");
+  }
+
+  hideError(field, errorElement) {
+    field.classList.remove("border-red-500", "bg-red-50");
+    field.classList.add("border-gray-300");
+    errorElement.classList.add("hidden");
+  }
+
+  validateForm() {
+    const fields = [
+      { id: "inputNamaPelanggan", errorId: "errorNamaPelanggan" },
+      { id: "inputTiketPelanggan", errorId: "errorTiketPelanggan" },
+      { id: "selectRegion", errorId: "errorRegion" },
+      { id: "selectKategori", errorId: "errorKategori" },
+      { id: "selectKeperluan", errorId: "errorKeperluan" },
+    ];
+
+    let isValid = true;
+
+    fields.forEach((field) => {
+      const element = document.getElementById(field.id);
+      const errorElement = document.getElementById(field.errorId);
+
+      if (element && errorElement) {
+        if (!this.validateField(element, errorElement)) {
+          isValid = false;
+        }
+      }
+    });
+
+    return isValid;
   }
 }
 

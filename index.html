@@ -87,7 +87,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Pelanggan *
+                    Nama Pelanggan <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -96,31 +96,47 @@
                     class="input-modern w-full"
                     placeholder="Masukkan nama lengkap pelanggan"
                   />
+                  <div
+                    class="text-xs text-red-500 mt-1 hidden"
+                    id="errorNamaPelanggan"
+                  >
+                    Nama pelanggan wajib diisi
+                  </div>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    ID Pelanggan
+                    Nomor Tiket <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    id="inputIdPelanggan"
+                    id="inputTiketPelanggan"
+                    required
                     class="input-modern w-full"
-                    placeholder="Opsional"
+                    placeholder="Contoh: RYZN1001, RYZN1002"
+                    pattern="[A-Z0-9]{6,12}"
+                    title="Format tiket: huruf besar dan angka (6-12 karakter)"
                   />
+                  <div
+                    class="text-xs text-red-500 mt-1 hidden"
+                    id="errorTiketPelanggan"
+                  >
+                    Nomor tiket wajib diisi (format: RYZN1001)
+                  </div>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Region *
+                    Region <span class="text-red-500">*</span>
                   </label>
                   <select
                     id="selectRegion"
                     required
                     class="input-modern w-full"
                   >
+                    <option value="">Pilih Region</option>
                     <option value="RJBB">RJBB</option>
                     <option value="RJBT">RJBT</option>
                     <option value="RJBTG">RJBTG</option>
@@ -132,11 +148,17 @@
                     <option value="RSBU">RSBU</option>
                     <option value="RSBS">RSBS</option>
                   </select>
+                  <div
+                    class="text-xs text-red-500 mt-1 hidden"
+                    id="errorRegion"
+                  >
+                    Region wajib dipilih
+                  </div>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Kategori Gangguan *
+                    Kategori Gangguan <span class="text-red-500">*</span>
                   </label>
                   <select
                     id="selectKategori"
@@ -159,12 +181,18 @@
                       TIKAK BISA AKSES WEB
                     </option>
                   </select>
+                  <div
+                    class="text-xs text-red-500 mt-1 hidden"
+                    id="errorKategori"
+                  >
+                    Kategori gangguan wajib dipilih
+                  </div>
                 </div>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Keperluan FU *
+                  Keperluan FU <span class="text-red-500">*</span>
                 </label>
                 <select
                   id="selectKeperluan"
@@ -188,6 +216,26 @@
                     KONFIRMASI KENDALA ICONPLAY
                   </option>
                 </select>
+                <div
+                  class="text-xs text-red-500 mt-1 hidden"
+                  id="errorKeperluan"
+                >
+                  Keperluan FU wajib dipilih
+                </div>
+              </div>
+
+              <!-- ID Pelanggan (Opsional) -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  ID Pelanggan
+                  <span class="text-gray-400 text-xs">(opsional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="inputIdPelanggan"
+                  class="input-modern w-full"
+                  placeholder="Opsional - bisa dikosongkan"
+                />
               </div>
 
               <button

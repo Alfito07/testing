@@ -218,20 +218,22 @@ class EnhancedApp {
     }
   }
 
-    checkRequiredElements() {
+  checkRequiredElements() {
     const requiredElements = [
-      'outboundTicketsList',
-      'ticketForm',
-      'inputSection'
+      "outboundTicketsList",
+      "ticketForm",
+      "inputSection",
     ];
-    
-    const missingElements = requiredElements.filter(id => !document.getElementById(id));
-    
+
+    const missingElements = requiredElements.filter(
+      (id) => !document.getElementById(id)
+    );
+
     if (missingElements.length > 0) {
       console.warn("Missing elements:", missingElements);
       return false;
     }
-    
+
     return true;
   }
 
@@ -293,11 +295,11 @@ class EnhancedApp {
 
   initEnhancedFeatures() {
     console.log("🔧 Initializing enhanced features...");
-    
+
     try {
       // Initialize components dengan error handling
       this.initTicketForm();
-      
+
       // Load tickets dengan delay
       setTimeout(() => {
         this.loadOutboundTickets();
@@ -311,7 +313,6 @@ class EnhancedApp {
       }, 30000);
 
       console.log("✅ Enhanced features initialized");
-      
     } catch (error) {
       console.error("❌ Enhanced features init failed:", error);
       throw error;
@@ -347,7 +348,7 @@ class EnhancedApp {
   /**
    * OUTBOUND - Load Pending Tickets
    */
-   async loadOutboundTickets() {
+  async loadOutboundTickets() {
     // Jika app belum initialized, skip dulu
     if (!this.initialized) {
       console.log("⏳ App not ready, skipping ticket load");
@@ -356,7 +357,7 @@ class EnhancedApp {
 
     try {
       console.log("📋 Loading outbound tickets...");
-      
+
       // Show loading state
       const container = document.getElementById("outboundTicketsList");
       if (container) {
@@ -371,11 +372,10 @@ class EnhancedApp {
       const tickets = await this.apiCall("get_pending_tickets");
       console.log("✅ Tickets loaded:", tickets);
       this.renderOutboundTickets(tickets);
-      
     } catch (error) {
       console.error("❌ Failed to load tickets:", error);
       this.showError("Gagal memuat data tiket: " + error.message);
-      
+
       // Show error state
       const container = document.getElementById("outboundTicketsList");
       if (container) {
@@ -593,6 +593,90 @@ class EnhancedApp {
       }
     } catch (error) {
       Utils.showToast("Gagal assign tiket", "error");
+    }
+  }
+
+  async loadOutboundTickets() {
+    // Jika app belum initialized, skip dulu
+    if (!this.initialized) {
+      console.log("⏳ App not ready, skipping ticket load");
+      return;
+    }
+
+    try {
+      console.log("📋 Loading outbound tickets...");
+
+      // Show loading state
+      const container = document.getElementById("outboundTicketsList");
+      if (container) {
+        container.innerHTML = `
+        <div class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p class="text-gray-500 mt-2">Memuat tiket...</p>
+        </div>
+      `;
+      }
+
+      const result = await this.apiCall("get_pending_tickets");
+      console.log("✅ API Response:", result);
+
+      // Handle different response structures
+      let tickets = [];
+
+      if (result && result.success) {
+        if (Array.isArray(result.data)) {
+          // Structure: {success: true, data: [...]}
+          tickets = result.data;
+        } else if (Array.isArray(result)) {
+          // Structure: langsung array
+          tickets = result;
+        } else {
+          console.warn("⚠️ Unexpected response structure:", result);
+        }
+      } else {
+        console.warn("⚠️ API returned unsuccessful:", result);
+      }
+
+      console.log("🎯 Tickets to render:", tickets);
+      this.renderOutboundTickets(tickets);
+    } catch (error) {
+      console.error("❌ Failed to load tickets:", error);
+      this.showError("Gagal memuat data tiket: " + error.message);
+
+      // Show error state
+      const container = document.getElementById("outboundTicketsList");
+      if (container) {
+        container.innerHTML = `
+        <div class="text-center py-8 text-red-500">
+          <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+          <p>Gagal memuat tiket</p>
+          <p class="text-sm mt-2">${error.message}</p>
+          <button 
+            onclick="window.refreshOutboundTickets()" 
+            class="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm"
+          >
+            <i class="fas fa-refresh mr-1"></i>Coba Lagi
+          </button>
+        </div>
+      `;
+      }
+    } finally {
+      // Reset refresh button state
+      this.resetRefreshButton();
+    }
+  }
+
+  resetRefreshButton() {
+    const btn = document.getElementById("refreshTicketsBtn");
+    const refreshText = document.getElementById("refreshText");
+    const refreshSpinner = document.getElementById("refreshSpinner");
+
+    if (btn && refreshText && refreshSpinner) {
+      setTimeout(() => {
+        btn.disabled = false;
+        refreshText.classList.remove("hidden");
+        refreshSpinner.classList.add("hidden");
+      }, 500);
     }
   }
 

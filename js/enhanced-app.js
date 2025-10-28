@@ -184,93 +184,159 @@ class EnhancedApp {
 
   renderOutboundTickets(tickets) {
     const container = document.getElementById("outboundTicketsList");
-    if (!container) return;
+    if (!container) {
+      console.error("❌ Container outboundTicketsList not found");
+      return;
+    }
+
+    console.log("🎨 Rendering tickets:", tickets);
 
     // Handle case where tickets is not an array
     if (!Array.isArray(tickets)) {
+      console.error("❌ Tickets data is not an array:", tickets);
       container.innerHTML = `
-        <div class="text-center py-8 text-gray-500">
-          <i class="fas fa-exclamation-triangle text-4xl mb-4 text-yellow-500"></i>
-          <p>Data tiket tidak valid</p>
-          <p class="text-sm mt-2">Response: ${JSON.stringify(tickets)}</p>
-        </div>
-      `;
+      <div class="text-center py-8 text-red-500">
+        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+        <p>Format data tiket tidak valid</p>
+        <p class="text-sm mt-2">Response: ${typeof tickets}</p>
+        <button 
+          onclick="window.refreshOutboundTickets()" 
+          class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm"
+        >
+          <i class="fas fa-refresh mr-1"></i>Coba Lagi
+        </button>
+      </div>
+    `;
       return;
     }
 
     if (tickets.length === 0) {
       container.innerHTML = `
-        <div class="text-center py-8 text-gray-500">
-          <i class="fas fa-inbox text-4xl mb-4"></i>
-          <p>Tidak ada tiket yang menunggu konfirmasi</p>
-          <p class="text-sm mt-2">Semua tiket sudah ditangani 🎉</p>
-        </div>
-      `;
+      <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-inbox text-4xl mb-4"></i>
+        <p>Tidak ada tiket yang menunggu konfirmasi</p>
+        <p class="text-sm mt-2">Semua tiket sudah ditangani 🎉</p>
+        <button 
+          onclick="window.refreshOutboundTickets()" 
+          class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm"
+        >
+          <i class="fas fa-refresh mr-1"></i>Refresh
+        </button>
+      </div>
+    `;
       return;
     }
 
-    container.innerHTML = tickets
-      .map(
-        (ticket) => `
-      <div class="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-3">
-          <div class="flex-1">
-            <h4 class="font-semibold text-gray-800 text-lg">${this.escapeHtml(
-              ticket["Nama Pelanggan"] || "N/A"
-            )}</h4>
-            <div class="flex items-center gap-4 mt-1">
-              <span class="text-sm text-gray-600">
-                <i class="fas fa-ticket-alt mr-1"></i>${this.escapeHtml(
-                  ticket["Nomor Tiket"] || ticket["Nomor TIket"] || "N/A"
-                )}
-              </span>
-              <span class="text-sm text-gray-600">
-                <i class="fas fa-map-marker-alt mr-1"></i>${this.escapeHtml(
-                  ticket["Region"] || "N/A"
-                )}
+    try {
+      container.innerHTML = tickets
+        .map((ticket, index) => {
+          // Debug setiap ticket
+          console.log(`🎫 Ticket ${index}:`, ticket);
+
+          // Handle berbagai kemungkinan nama field
+          const ticketNumber =
+            ticket["Nomor Tiket"] || ticket["Nomor TIket"] || "N/A";
+          const customerName = ticket["Nama Pelanggan"] || "N/A";
+          const region = ticket["Region"] || "N/A";
+          const category = ticket["Kategori Gangguan"] || "N/A";
+          const requirement = ticket["Keperluan FU"] || "N/A";
+          const inputDate = ticket["Tanggal & Waktu Input"] || "";
+
+          return `
+          <div class="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow slide-in">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-800 text-lg">${this.escapeHtml(
+                  customerName
+                )}</h4>
+                <div class="flex items-center gap-4 mt-1">
+                  <span class="text-sm text-gray-600">
+                    <i class="fas fa-ticket-alt mr-1"></i>${this.escapeHtml(
+                      ticketNumber
+                    )}
+                  </span>
+                  <span class="text-sm text-gray-600">
+                    <i class="fas fa-map-marker-alt mr-1"></i>${this.escapeHtml(
+                      region
+                    )}
+                  </span>
+                </div>
+              </div>
+              <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
+                ${this.escapeHtml(category)}
               </span>
             </div>
+            
+            <p class="text-sm text-gray-700 mb-3 bg-gray-50 p-2 rounded">
+              <i class="fas fa-clipboard-list mr-2"></i>
+              ${this.escapeHtml(requirement)}
+            </p>
+            
+            <div class="text-xs text-gray-500 mb-3">
+              <i class="fas fa-clock mr-1"></i>
+              Dibuat: ${this.formatDateTime(inputDate)}
+            </div>
+            
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="app.assignToMe('${this.escapeHtml(
+                ticketNumber
+              )}')" 
+                      class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
+                <i class="fas fa-user-check"></i>
+                Ambil Tiket
+              </button>
+              <button onclick="app.generateMessageForTicket(
+                '${this.escapeHtml(ticketNumber)}', 
+                '${this.escapeHtml(customerName)}', 
+                '${this.escapeHtml(category)}', 
+                '${this.escapeHtml(requirement)}'
+              )" 
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
+                <i class="fas fa-comment"></i>
+                Generate Pesan
+              </button>
+            </div>
           </div>
-          <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
-            ${this.escapeHtml(ticket["Kategori Gangguan"] || "N/A")}
-          </span>
-        </div>
-        
-        <p class="text-sm text-gray-700 mb-3 bg-gray-50 p-2 rounded">
-          <i class="fas fa-clipboard-list mr-2"></i>
-          ${this.escapeHtml(ticket["Keperluan FU"] || "N/A")}
-        </p>
-        
-        <div class="text-xs text-gray-500 mb-3">
-          <i class="fas fa-clock mr-1"></i>
-          Dibuat: ${this.formatDateTime(ticket["Tanggal & Waktu Input"])}
-        </div>
-        
-        <div class="flex gap-2 flex-wrap">
-          <button onclick="app.assignToMe('${this.escapeHtml(
-            ticket["Nomor Tiket"] || ticket["Nomor TIket"] || ""
-          )}')" 
-                  class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
-            <i class="fas fa-user-check"></i>
-            Ambil Tiket
-          </button>
-          <button onclick="app.generateMessageForTicket(
-            '${this.escapeHtml(
-              ticket["Nomor Tiket"] || ticket["Nomor TIket"] || ""
-            )}', 
-            '${this.escapeHtml(ticket["Nama Pelanggan"] || "")}', 
-            '${this.escapeHtml(ticket["Kategori Gangguan"] || "")}', 
-            '${this.escapeHtml(ticket["Keperluan FU"] || "")}'
-          )" 
-                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
-            <i class="fas fa-comment"></i>
-            Generate Pesan
-          </button>
-        </div>
+        `;
+        })
+        .join("");
+
+      console.log(`✅ Successfully rendered ${tickets.length} tickets`);
+
+      // Update status indicator
+      this.updateTicketCount(tickets.length);
+    } catch (error) {
+      console.error("❌ Error rendering tickets:", error);
+      container.innerHTML = `
+      <div class="text-center py-8 text-red-500">
+        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+        <p>Error menampilkan tiket</p>
+        <p class="text-sm mt-2">${error.message}</p>
+        <button 
+          onclick="window.refreshOutboundTickets()" 
+          class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm"
+        >
+          <i class="fas fa-refresh mr-1"></i>Coba Lagi
+        </button>
       </div>
-    `
-      )
-      .join("");
+    `;
+    }
+  }
+
+  updateTicketCount(count) {
+    const statusElement = document.getElementById("appStatus");
+    if (statusElement) {
+      const statusText = document.getElementById("statusText");
+      if (statusText) {
+        statusText.innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i> ${count} tiket tersedia`;
+      }
+    }
+
+    // Update refresh button text
+    const refreshText = document.getElementById("refreshText");
+    if (refreshText) {
+      refreshText.textContent = `Refresh (${count})`;
+    }
   }
 
   async assignToMe(ticketId) {
@@ -444,10 +510,7 @@ class EnhancedApp {
       return (
         date.toLocaleDateString("id-ID") +
         " " +
-        date.toLocaleTimeString("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+        date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
       );
     } catch (e) {
       return dateString;

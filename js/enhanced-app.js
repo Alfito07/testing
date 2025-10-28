@@ -1,26 +1,98 @@
 // enhanced-app.js - FIXED VERSION
 class EnhancedApp {
   constructor() {
-    // ✅ GANTI DENGAN URL ANDA YANG SEBENARNYA
     this.API_URL =
-      "https://script.google.com/macros/s/AKfycbyzcSTlhWoQylIoL013rttPjh3G3oE0saCGvM1dALRj/exec";
+      "https://script.google.com/macros/s/AKfycbyzcSTlhWoQylIoL013rttPjh3G3oE0saCGvM1dALRj/dev";
     this.currentUser = "Outbound_User";
+    this.initialized = false;
+    this.retryCount = 0;
+    this.maxRetries = 3;
 
-    this.init();
+    console.log("🔄 EnhancedApp constructor called");
+
+    // Set global app state
+    window.appReady = false;
+
+    // Delay initialization untuk pastikan DOM ready
+    setTimeout(() => {
+      this.init();
+    }, 100);
   }
 
   async init() {
-    console.log("🚀 Initializing Enhanced App...");
-    console.log("🔗 API URL:", this.API_URL);
+    try {
+      console.log("🚀 Enhanced App Initializing...");
 
-    // Test connection first
-    await this.testBackendConnection();
+      // Update status
+      this.updateAppStatus("initializing");
 
-    this.initTicketForm();
-    this.loadOutboundTickets();
+      // Pastikan DOM elements sudah tersedia
+      if (!this.checkRequiredElements()) {
+        console.warn("⚠️ Some DOM elements not ready, retrying...");
 
-    // Auto-refresh every 30 seconds
-    setInterval(() => this.loadOutboundTickets(), 30000);
+        if (this.retryCount < this.maxRetries) {
+          this.retryCount++;
+          setTimeout(() => this.init(), 500);
+          return;
+        } else {
+          throw new Error("Failed to initialize app: DOM elements not found");
+        }
+      }
+
+      this.initEnhancedFeatures();
+      this.initialized = true;
+      window.appReady = true;
+
+      console.log("✅ Enhanced App Fully Initialized");
+      this.updateAppStatus("ready");
+      Utils.showToast("Aplikasi siap digunakan!", "success");
+    } catch (error) {
+      console.error("❌ App initialization failed:", error);
+      this.updateAppStatus("error");
+      this.showError("Gagal memulai aplikasi: " + error.message);
+    }
+  }
+
+  updateAppStatus(status) {
+    const statusElement = document.getElementById("appStatus");
+    const statusText = document.getElementById("statusText");
+    const refreshBtn = document.getElementById("refreshTicketsBtn");
+
+    if (!statusElement || !statusText) return;
+
+    switch (status) {
+      case "initializing":
+        statusElement.className =
+          "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm";
+        statusText.innerHTML =
+          '<i class="fas fa-spinner fa-spin text-yellow-500 mr-1"></i> Menyiapkan aplikasi...';
+        if (refreshBtn) refreshBtn.disabled = true;
+        break;
+
+      case "ready":
+        statusElement.className =
+          "mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm";
+        statusText.innerHTML =
+          '<i class="fas fa-check-circle text-green-500 mr-1"></i> Aplikasi siap digunakan';
+        if (refreshBtn) refreshBtn.disabled = false;
+        break;
+
+      case "error":
+        statusElement.className =
+          "mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm";
+        statusText.innerHTML =
+          '<i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Gagal memuat aplikasi';
+        if (refreshBtn) refreshBtn.disabled = true;
+        break;
+
+      default:
+        statusElement.className =
+          "mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm";
+        statusText.innerHTML =
+          '<i class="fas fa-circle text-gray-500 mr-1"></i> Status tidak diketahui';
+    }
+
+    statusElement.classList.remove("hidden");
   }
 
   async testBackendConnection() {

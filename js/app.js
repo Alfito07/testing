@@ -176,7 +176,7 @@ class MessageGeneratorApp {
 class EnhancedApp {
   constructor() {
     this.API_URL =
-      "https://script.google.com/macros/s/AKfycbyzcSTlhWoQylIoL013rttPjh3G3oE0saCGvM1dALRj/exec";
+      "https://script.google.com/macros/s/AKfycby9hs3fUrd0czk4Ga1S9x_GD7LOZ5Pth1CZxaJux4DwZe_Vcy4C3G6m2_bSz_kSJmprhg/exec";
     this.currentUser = "Outbound_User";
     this.initialized = false;
     this.retryCount = 0;
@@ -218,22 +218,20 @@ class EnhancedApp {
     }
   }
 
-  checkRequiredElements() {
+    checkRequiredElements() {
     const requiredElements = [
-      "outboundTicketsList",
-      "ticketForm",
-      "inputSection",
+      'outboundTicketsList',
+      'ticketForm',
+      'inputSection'
     ];
-
-    const missingElements = requiredElements.filter(
-      (id) => !document.getElementById(id)
-    );
-
+    
+    const missingElements = requiredElements.filter(id => !document.getElementById(id));
+    
     if (missingElements.length > 0) {
       console.warn("Missing elements:", missingElements);
       return false;
     }
-
+    
     return true;
   }
 
@@ -295,11 +293,11 @@ class EnhancedApp {
 
   initEnhancedFeatures() {
     console.log("🔧 Initializing enhanced features...");
-
+    
     try {
       // Initialize components dengan error handling
       this.initTicketForm();
-
+      
       // Load tickets dengan delay
       setTimeout(() => {
         this.loadOutboundTickets();
@@ -313,6 +311,7 @@ class EnhancedApp {
       }, 30000);
 
       console.log("✅ Enhanced features initialized");
+      
     } catch (error) {
       console.error("❌ Enhanced features init failed:", error);
       throw error;
@@ -348,7 +347,7 @@ class EnhancedApp {
   /**
    * OUTBOUND - Load Pending Tickets
    */
-  async loadOutboundTickets() {
+   async loadOutboundTickets() {
     // Jika app belum initialized, skip dulu
     if (!this.initialized) {
       console.log("⏳ App not ready, skipping ticket load");
@@ -357,7 +356,7 @@ class EnhancedApp {
 
     try {
       console.log("📋 Loading outbound tickets...");
-
+      
       // Show loading state
       const container = document.getElementById("outboundTicketsList");
       if (container) {
@@ -372,10 +371,11 @@ class EnhancedApp {
       const tickets = await this.apiCall("get_pending_tickets");
       console.log("✅ Tickets loaded:", tickets);
       this.renderOutboundTickets(tickets);
+      
     } catch (error) {
       console.error("❌ Failed to load tickets:", error);
       this.showError("Gagal memuat data tiket: " + error.message);
-
+      
       // Show error state
       const container = document.getElementById("outboundTicketsList");
       if (container) {
@@ -751,63 +751,6 @@ class EnhancedApp {
     Utils.showToast(message, "error");
   }
 }
-
-// ✅ APP STATUS MONITOR
-class AppStatusMonitor {
-  constructor() {
-    this.checkInterval = null;
-    this.startMonitoring();
-  }
-
-  startMonitoring() {
-    this.checkInterval = setInterval(() => {
-      this.updateStatusIndicator();
-    }, 2000);
-
-    // Initial check
-    setTimeout(() => this.updateStatusIndicator(), 1000);
-  }
-
-  updateStatusIndicator() {
-    const statusElement = document.getElementById("appStatus");
-    const statusText = document.getElementById("statusText");
-
-    if (!statusElement || !statusText) return;
-
-    const status = window.checkAppStatus
-      ? window.checkAppStatus()
-      : {
-          appDefined: false,
-          appReady: false,
-          EnhancedAppDefined: false,
-          domReady: document.readyState === "complete",
-        };
-
-    if (status.appReady) {
-      statusElement.className =
-        "mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm";
-      statusText.innerHTML =
-        '<i class="fas fa-check-circle text-green-500 mr-1"></i> Aplikasi siap';
-    } else if (status.appDefined) {
-      statusElement.className =
-        "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm";
-      statusText.innerHTML =
-        '<i class="fas fa-spinner fa-spin text-yellow-500 mr-1"></i> Aplikasi loading...';
-    } else {
-      statusElement.className =
-        "mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm";
-      statusText.innerHTML =
-        '<i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Menunggu inisialisasi...';
-    }
-
-    statusElement.classList.remove("hidden");
-  }
-}
-
-// Start status monitor ketika DOM ready
-document.addEventListener("DOMContentLoaded", () => {
-  window.statusMonitor = new AppStatusMonitor();
-});
 
 // ✅ GLOBAL FUNCTIONS UNTUK HTML ONCLICK
 window.refreshOutboundTickets = () => {

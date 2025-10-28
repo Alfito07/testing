@@ -178,16 +178,70 @@ class EnhancedApp {
     this.API_URL =
       "https://script.google.com/macros/s/AKfycbyzcSTlhWoQylIoL013rttPjh3G3oE0saCGvM1dALRj/exec";
     this.currentUser = "Outbound_User";
-    this.sentMessages = new Map();
-    this.todayKey = new Date().toISOString().split("T")[0];
-    this.currentMessages = [];
+    this.jsonpCallbackId = 0;
 
     this.init();
   }
 
-  init() {
-    console.log("🚀 App Initializing...");
+  async init() {
+    console.log("🚀 Enhanced App Initializing...");
     this.initEnhancedFeatures();
+  }
+
+  jsonpCall(action, data = null) {
+    return new Promise((resolve, reject) => {
+      this.jsonpCallbackId++;
+      const callbackName = `jsonpCallback_${this.jsonpCallbackId}`;
+
+      // Create script element
+      const script = document.createElement("script");
+
+      // Build URL with callback
+      let url = `${this.API_URL}?action=${action}&callback=${callbackName}`;
+
+      // Add data as parameters
+      if (data) {
+        for (const key in data) {
+          if (data[key] !== null && data[key] !== undefined) {
+            url += `&${key}=${encodeURIComponent(data[key])}`;
+          }
+        }
+      }
+
+      script.src = url;
+
+      // Define callback function
+      window[callbackName] = (response) => {
+        // Clean up
+        document.head.removeChild(script);
+        delete window[callbackName];
+
+        if (response && response.success) {
+          resolve(response);
+        } else {
+          reject(new Error(response?.error || "Unknown error"));
+        }
+      };
+
+      // Error handling
+      script.onerror = () => {
+        document.head.removeChild(script);
+        delete window[callbackName];
+        reject(new Error("JSONP request failed"));
+      };
+
+      // Add to document
+      document.head.appendChild(script);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (window[callbackName]) {
+          document.head.removeChild(script);
+          delete window[callbackName];
+          reject(new Error("JSONP timeout"));
+        }
+      }, 10000);
+    });
   }
 
   initEnhancedFeatures() {
@@ -234,13 +288,19 @@ class EnhancedApp {
    */
   async loadOutboundTickets() {
     try {
-      console.log("📋 Loading outbound tickets...");
-      const tickets = await this.apiCall("get_pending_tickets");
-      console.log("✅ Tickets loaded:", tickets.length, "tickets");
-      this.renderOutboundTickets(tickets);
+      console.log("📋 Loading outbound tickets via JSONP...");
+      const result = await this.jsonpCall("get_pending_tickets");
+      console.log("✅ Tickets loaded via JSONP:", result);
+
+      if (result.success && Array.isArray(result.data)) {
+        this.renderOutboundTickets(result.data);
+      } else {
+        this.renderOutboundTickets([]);
+      }
     } catch (error) {
-      console.error("❌ Failed to load tickets:", error);
+      console.error("❌ Failed to load tickets via JSONP:", error);
       this.showError("Gagal memuat data tiket: " + error.message);
+      this.renderOutboundTickets([]);
     }
   }
 

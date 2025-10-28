@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generator Pesan Konfirmasi - NOC Outbound</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body
+    class="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100 min-h-screen flex flex-col items-center p-4"
+  >
+    <div class="w-full max-w-7xl">
+      <!-- Enhanced Hero Section -->
+      <header
+        class="text-center mb-8 bg-gradient-to-r from-slate-800 to-slate-900 text-white py-10 rounded-xl border-b-4 border-blue-500"
+      >
+        <div class="max-w-3xl mx-auto px-4">
+          <!-- Compact Icon -->
+          <div
+            class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          >
+            <i class="fas fa-message text-white"></i>
+          </div>
+
+          <!-- Clean Typography -->
+          <h1 class="text-3xl md:text-4xl font-semibold mb-2 text-white">
+            Message Generator
+          </h1>
+          <p class="text-blue-200 font-light">NOC Outbound JAYA JAYA JAYA</p>
+        </div>
+      </header>
+
+      <!-- Main Content Container -->
+      <div class="glass-effect rounded-3xl p-8 mb-8">
+        <!-- Progress Section -->
+        <div id="progressSection" class="hidden mb-8">
+          <!-- Progress content will be injected here -->
+        </div>
+
+        <!-- Input Area -->
+        <section
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          id="inputSection"
+        >
+          <!-- Content will be injected by JavaScript -->
+        </section>
+
+        <!-- Warnings Section -->
+        <div id="dataQualityWarning" class="hidden"></div>
+        <div id="duplicateWarning" class="hidden"></div>
+
+        <!-- Auto-Detection Preview -->
+        <div id="detectionPreview" class="hidden mb-6"></div>
+
+        <!-- Custom Fields -->
+        <section id="customFieldsSection" class="mb-6"></section>
+
+        <!-- Template Selector -->
+        <section class="mb-6" id="templateSection"></section>
+
+        <!-- Action Buttons -->
+        <div
+          class="flex gap-4 mb-6 flex-wrap justify-center"
+          id="actionButtons"
+        >
+          <!-- Buttons will be injected by JavaScript -->
+        </div>
+
+        <!-- Tambahkan di index.html sebelum output section -->
+        <section id="ticketInputSection" class="mb-8">
+          <div class="card-modern">
+            <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
+              <div
+                class="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center"
+              >
+                <i class="fas fa-plus-circle text-white text-lg"></i>
+              </div>
+              <span>Input Tiket Baru (L1 Team)</span>
+            </h3>
+
+            <form id="ticketForm" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Nama Pelanggan *
+                  </label>
+                  <input
+                    type="text"
+                    id="inputNamaPelanggan"
+                    required
+                    class="input-modern w-full"
+                    placeholder="Masukkan nama lengkap pelanggan"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    ID Pelanggan
+                  </label>
+                  <input
+                    type="text"
+                    id="inputIdPelanggan"
+                    class="input-modern w-full"
+                    placeholder="Opsional"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Region *
+                  </label>
+                  <select
+                    id="selectRegion"
+                    required
+                    class="input-modern w-full"
+                  >
+                    <option value="RJBB">RJBB</option>
+                    <option value="RJBT">RJBT</option>
+                    <option value="RJBTG">RJBTG</option>
+                    <option value="RJKT">RJKT</option>
+                    <option value="RBNT">RBNT</option>
+                    <option value="RKAL">RKAL</option>
+                    <option value="RINT">RINT</option>
+                    <option value="RSBT">RSBT</option>
+                    <option value="RSBU">RSBU</option>
+                    <option value="RSBS">RSBS</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Kategori Gangguan *
+                  </label>
+                  <select
+                    id="selectKategori"
+                    required
+                    class="input-modern w-full"
+                  >
+                    <option value="">Pilih Kategori</option>
+                    <option value="INTERNET DOWN/ NO INTERNET">
+                      INTERNET DOWN/NO INTERNET
+                    </option>
+                    <option value="INTERNET SLOW">INTERNET SLOW</option>
+                    <option value="GANGGUAN-ICONPLAY">GANGGUAN-ICONPLAY</option>
+                    <option value="GANGGUAN-VIU">GANGGUAN-VIU</option>
+                    <option value="GANGGUAN-CUBMU">GANGGUAN-CUBMU</option>
+                    <option value="GANGGUAN-VIDIO">GANGGUAN-VIDIO</option>
+                    <option value="LAIN-LAIN">LAIN-LAIN</option>
+                    <option value="INTERMITTEN">INTERMITTEN</option>
+                    <option value="CABLE PROBLEM">CABLE PROBLEM</option>
+                    <option value="TIKAK BISA AKSES WEB">
+                      TIKAK BISA AKSES WEB
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Keperluan FU *
+                </label>
+                <select
+                  id="selectKeperluan"
+                  required
+                  class="input-modern w-full"
+                >
+                  <option value="">Pilih Keperluan</option>
+                  <option value="KONFIRMASI KENDALA USER">
+                    KONFIRMASI KENDALA USER
+                  </option>
+                  <option value="KONFIRMASI PERGANTIAN PASSWORD">
+                    KONFIRMASI PERGANTIAN PASSWORD
+                  </option>
+                  <option value="KONFIRMASI PERGANTIAN SSID DAN PASSWORD">
+                    KONFIRMASI SSID & PASSWORD
+                  </option>
+                  <option value="KONFIRMASI KENDALA WLAN TERESET">
+                    KONFIRMASI WLAN TERESET
+                  </option>
+                  <option value="KONFIRMASI KENDALA ICONPLAY">
+                    KONFIRMASI KENDALA ICONPLAY
+                  </option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                class="btn-primary w-full flex items-center justify-center gap-3 py-4 text-lg"
+              >
+                <i class="fas fa-plus"></i>
+                Buat Tiket Baru
+                <kbd class="text-xs bg-white/20 px-2 py-1 rounded"
+                  >Auto-save ke Spreadsheet</kbd
+                >
+              </button>
+            </form>
+
+            <div id="ticketResult" class="mt-4 hidden"></div>
+          </div>
+        </section>
+
+        <!-- Outbound Dashboard Section -->
+        <section id="outboundDashboard" class="mb-8">
+          <div class="card-modern">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold flex items-center gap-3">
+                <div
+                  class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center"
+                >
+                  <i class="fas fa-tasks text-white text-lg"></i>
+                </div>
+                <span>Dashboard Outbound Team</span>
+              </h3>
+              <button
+                onclick="refreshOutboundTickets()"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+              </button>
+            </div>
+
+            <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div class="flex items-center gap-2 text-blue-700">
+                <i class="fas fa-info-circle"></i>
+                <p class="text-sm">
+                  Dashboard ini auto-refresh setiap 30 detik. Klik "Ambil Tiket"
+                  untuk assign ke Anda.
+                </p>
+              </div>
+            </div>
+
+            <div id="outboundTicketsList" class="space-y-4">
+              <!-- Tickets will be loaded here automatically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Output Section -->
+        <section id="output" class="space-y-6"></section>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-gray-600 text-sm w-full max-w-7xl">
+      <div class="glass-effect rounded-2xl p-6">
+        <p class="font-semibold text-gray-700">
+          &copy; 2025 NOC Outbound | All rights reserved
+        </p>
+      </div>
+    </footer>
+
+    <!-- Enhanced Floating Menu -->
+    <div
+      id="floatingMenu"
+      class="fixed bottom-8 right-8 flex flex-col gap-4 z-50"
+    >
+      <!-- Keyboard Shortcuts -->
+      <button
+        onclick="showKeyboardShortcuts()"
+        class="floating-btn bg-gradient-to-r from-purple-500 to-pink-600 delay-75"
+        title="Keyboard Shortcuts (F1)"
+      >
+        <i class="fas fa-keyboard"></i>
+      </button>
+
+      <!-- About -->
+      <button
+        onclick="showAbout()"
+        class="floating-btn bg-gradient-to-r from-gray-600 to-gray-700 delay-225"
+        title="Tentang Aplikasi"
+      >
+        <i class="fas fa-info-circle"></i>
+      </button>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div
+      id="shortcutsModal"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="glass-effect rounded-3xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0 border border-white/20"
+        id="shortcutsModalContent"
+      >
+        <div
+          class="flex justify-between items-center p-8 border-b border-white/20"
+        >
+          <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center"
+            >
+              <i class="fas fa-keyboard text-white text-xl"></i>
+            </div>
+            <span>Keyboard Shortcuts</span>
+          </h3>
+          <button
+            onclick="closeModal('shortcutsModal')"
+            class="text-gray-400 hover:text-gray-600 transition-colors w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-xl"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <div class="p-8 space-y-6">
+          <div
+            class="flex justify-between items-center py-3 border-b border-gray-100"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-play-circle text-blue-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">Generate Pesan</span>
+            </div>
+            <kbd
+              class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-mono shadow-lg"
+              >Ctrl + Enter</kbd
+            >
+          </div>
+
+          <div
+            class="flex justify-between items-center py-3 border-b border-gray-100"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-search text-green-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">Preview Detection</span>
+            </div>
+            <kbd
+              class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-mono shadow-lg"
+              >Ctrl + P</kbd
+            >
+          </div>
+
+          <div
+            class="flex justify-between items-center py-3 border-b border-gray-100"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-copy text-purple-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">Copy Semua Pesan</span>
+            </div>
+            <kbd
+              class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-mono shadow-lg"
+              >Ctrl + C</kbd
+            >
+          </div>
+
+          <div
+            class="flex justify-between items-center py-3 border-b border-gray-100"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-trash text-red-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">Hapus Semua Input</span>
+            </div>
+            <kbd
+              class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-mono shadow-lg"
+              >Ctrl + Delete</kbd
+            >
+          </div>
+
+          <div class="flex justify-between items-center py-3">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-question-circle text-yellow-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">Bantuan</span>
+            </div>
+            <kbd
+              class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-mono shadow-lg"
+              >F1</kbd
+            >
+          </div>
+        </div>
+
+        <div
+          class="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-b-3xl text-center border-t border-white/20"
+        >
+          <p class="text-sm text-gray-600 font-medium">
+            🚀 Gunakan shortcut untuk bekerja lebih efisien!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Modal -->
+    <div
+      id="aboutModal"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="glass-effect rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-95 opacity-0 border border-white/20"
+        id="aboutModalContent"
+      >
+        <!-- Header -->
+        <div
+          class="flex justify-between items-center p-8 border-b border-white/20 bg-gradient-to-r from-blue-50/80 to-purple-50/80"
+        >
+          <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center"
+            >
+              <i class="fas fa-info-circle text-white text-xl"></i>
+            </div>
+            <span>Panduan Penggunaan Aplikasi</span>
+          </h3>
+          <button
+            onclick="closeModal('aboutModal')"
+            class="text-gray-400 hover:text-gray-600 transition-colors w-10 h-10 flex items-center justify-center hover:bg-white rounded-xl"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Content dengan Scroll -->
+        <div class="p-8 space-y-8 overflow-y-auto max-h-[60vh] modal-content">
+          <!-- App Info -->
+          <div class="text-center">
+            <div
+              class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+            >
+              <i class="fas fa-comment-dots text-white text-3xl"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-800 mb-2">
+              Generator Pesan Konfirmasi
+            </h4>
+            <p class="text-gray-600 text-lg">NOC Outbound JAYA JAYA JAYA</p>
+          </div>
+
+          <!-- Langkah Penggunaan -->
+          <div class="card-modern">
+            <h5
+              class="font-bold text-gray-800 text-xl mb-4 flex items-center gap-3"
+            >
+              <div
+                class="w-10 h-10 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <i class="fas fa-play-circle text-white"></i>
+              </div>
+              <span>📋 Langkah Penggunaan</span>
+            </h5>
+            <div class="space-y-4">
+              <div class="flex items-start gap-4 p-4 bg-blue-50 rounded-2xl">
+                <div
+                  class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-1 flex-shrink-0"
+                >
+                  1
+                </div>
+                <div>
+                  <strong class="text-blue-700 text-lg">Isi Data Tiket</strong>
+                  <p class="text-blue-600 mt-2">
+                    Masukkan Nama Pelanggan, Nomor Tiket, Kategori Gangguan, dan
+                    Keperluan FU pada kolom yang tersedia.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-green-50 rounded-2xl">
+                <div
+                  class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-1 flex-shrink-0"
+                >
+                  2
+                </div>
+                <div>
+                  <strong class="text-green-700 text-lg"
+                    >Klik "Generate Pesan"</strong
+                  >
+                  <p class="text-green-600 mt-2">
+                    Sistem otomatis memilih template berdasarkan kategori dan
+                    keperluan. Hasil pesan sudah diformat sesuai standar
+                    konfirmasi ICONNET.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-purple-50 rounded-2xl">
+                <div
+                  class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-1 flex-shrink-0"
+                >
+                  3
+                </div>
+                <div>
+                  <strong class="text-purple-700 text-lg"
+                    >Salin & Kirim Pesan</strong
+                  >
+                  <p class="text-purple-600 mt-2">
+                    Klik tombol "Copy" untuk menyalin hasil, lalu tempelkan ke
+                    WhatsApp Web .
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aturan Template -->
+          <div class="card-modern">
+            <h5
+              class="font-bold text-gray-800 text-xl mb-4 flex items-center gap-3"
+            >
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center"
+              >
+                <i class="fas fa-robot text-white"></i>
+              </div>
+              <span>🎯 Template Otomatis</span>
+            </h5>
+            <div class="space-y-3">
+              <div
+                class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"
+              >
+                <span class="text-gray-700 font-medium"
+                  >INTERNET DOWN / SLOW / LAIN-LAIN</span
+                >
+                <span
+                  class="template-badge bg-gradient-to-r from-blue-500 to-cyan-600"
+                  >Template Standar</span
+                >
+              </div>
+              <div
+                class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"
+              >
+                <span class="text-gray-700 font-medium"
+                  >"terreset", "tereset", "default"</span
+                >
+                <span
+                  class="template-badge bg-gradient-to-r from-orange-500 to-red-500"
+                  >WiFi Default</span
+                >
+              </div>
+              <div
+                class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"
+              >
+                <span class="text-gray-700 font-medium"
+                  >"SSID dan Password"</span
+                >
+                <span
+                  class="template-badge bg-gradient-to-r from-purple-500 to-pink-600"
+                  >Ganti SSID+Password</span
+                >
+              </div>
+              <div
+                class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"
+              >
+                <span class="text-gray-700 font-medium">"Password" saja</span>
+                <span
+                  class="template-badge bg-gradient-to-r from-indigo-500 to-purple-600"
+                  >Ganti Password</span
+                >
+              </div>
+              <div
+                class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"
+              >
+                <span class="text-gray-700 font-medium">"SSID" saja</span>
+                <span
+                  class="template-badge bg-gradient-to-r from-teal-500 to-cyan-600"
+                  >Ganti SSID</span
+                >
+              </div>
+              <div
+                class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"
+              >
+                <span class="text-gray-700 font-medium"
+                  >GANGGUAN-ICONPLAY/CUBMU/VIU/VIDIO</span
+                >
+                <span
+                  class="template-badge bg-gradient-to-r from-red-500 to-pink-600"
+                  >GANGGUAN LAYANAN</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Pengecekan Ulang -->
+          <div class="card-modern border-2 border-yellow-200 bg-yellow-50/50">
+            <h5
+              class="font-bold text-yellow-800 text-xl mb-4 flex items-center gap-3"
+            >
+              <div
+                class="w-10 h-10 bg-yellow-500 rounded-2xl flex items-center justify-center"
+              >
+                <i class="fas fa-shield-alt text-white"></i>
+              </div>
+              <span>🔍 Verifikasi Ulang</span>
+            </h5>
+            <div class="space-y-3 text-yellow-700">
+              <p class="font-semibold">
+                Sebelum mengirim ke pelanggan, selalu lakukan pengecekan ulang
+                di ICRM untuk kasus:
+              </p>
+              <ul class="list-disc list-inside space-y-2 ml-4">
+                <li>Pergantian SSID atau Password</li>
+                <li>Reset perangkat (WiFi Default)</li>
+                <li>Gangguan layanan (ICONPLAY, VIU, CUBMU, VIDIO)</li>
+              </ul>
+              <p
+                class="text-sm italic mt-3 p-3 bg-yellow-100 rounded-xl border border-yellow-200"
+              >
+                Beberapa data mungkin masih menggunakan template default,
+                sehingga perlu pengecekan ulang.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div
+      id="loadingSpinner"
+      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+    >
+      <div
+        class="glass-effect p-8 rounded-3xl flex items-center gap-4 border border-white/20"
+      >
+        <div class="relative">
+          <div class="w-12 h-12 border-4 border-blue-200 rounded-full"></div>
+          <div
+            class="w-12 h-12 border-4 border-blue-600 rounded-full absolute top-0 left-0 animate-spin border-t-transparent"
+          ></div>
+        </div>
+        <div>
+          <span class="text-gray-700 font-semibold">Memproses...</span>
+          <div class="text-sm text-gray-500 loading-dots">Menyiapkan pesan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/detection.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

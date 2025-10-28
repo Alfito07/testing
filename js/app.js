@@ -446,23 +446,30 @@ class EnhancedApp {
   }
 
   /**
-   * GENERIC API CALL
+   * GENERIC API CALL - FIXED CORS ISSUE
    */
   async apiCall(action, data = null) {
     const url = `${this.API_URL}?action=${action}`;
 
     console.log("🔗 API Call:", url);
 
-    // ✅ GUNAKAN XMLHttpRequest (XHR) - NO CORS ISSUES
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
-      xhr.open("POST", url, true);
-      xhr.setRequestHeader("Content-Type", "application/json");
+      // Gunakan GET untuk data sederhana, POST untuk data kompleks
+      const method = data ? "POST" : "GET";
+
+      xhr.open(method, url, true);
+
+      if (data) {
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+      }
 
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-          // Request completed
           console.log("📨 XHR Response:", {
             status: xhr.status,
             statusText: xhr.statusText,
@@ -483,18 +490,25 @@ class EnhancedApp {
       };
 
       xhr.onerror = function () {
-        reject(new Error("XHR Network error - CORS or connection issue"));
+        reject(new Error("XHR Network error"));
       };
 
       xhr.ontimeout = function () {
         reject(new Error("XHR Timeout"));
       };
 
-      // Set timeout 10 detik
-      xhr.timeout = 10000;
+      xhr.timeout = 15000; // 15 detik timeout
 
-      console.log("🔄 Sending XHR request...");
-      xhr.send(data ? JSON.stringify(data) : null);
+      if (data) {
+        // Format data sebagai form-urlencoded
+        const formData = new URLSearchParams();
+        for (const key in data) {
+          formData.append(key, data[key]);
+        }
+        xhr.send(formData.toString());
+      } else {
+        xhr.send();
+      }
     });
   }
 

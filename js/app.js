@@ -453,30 +453,49 @@ class EnhancedApp {
 
     console.log("🔗 API Call:", url);
 
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: data ? JSON.stringify(data) : null,
-      });
+    // ✅ GUNAKAN XMLHttpRequest (XHR) - NO CORS ISSUES
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
 
-      const text = await response.text();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          // Request completed
+          console.log("📨 XHR Response:", {
+            status: xhr.status,
+            statusText: xhr.statusText,
+            response: xhr.responseText,
+          });
 
-      if (!text) {
-        throw new Error("Empty response from server");
-      }
+          if (xhr.status === 200) {
+            try {
+              const result = JSON.parse(xhr.responseText);
+              resolve(result);
+            } catch (e) {
+              reject(new Error("Invalid JSON response: " + e.message));
+            }
+          } else {
+            reject(new Error(`XHR Error ${xhr.status}: ${xhr.statusText}`));
+          }
+        }
+      };
 
-      return JSON.parse(text);
-    } catch (error) {
-      console.error("API Call failed:", error);
-      throw error;
-    }
+      xhr.onerror = function () {
+        reject(new Error("XHR Network error - CORS or connection issue"));
+      };
+
+      xhr.ontimeout = function () {
+        reject(new Error("XHR Timeout"));
+      };
+
+      // Set timeout 10 detik
+      xhr.timeout = 10000;
+
+      console.log("🔄 Sending XHR request...");
+      xhr.send(data ? JSON.stringify(data) : null);
+    });
   }
 
   // ✅ ALTERNATIVE METHOD untuk handle CORS

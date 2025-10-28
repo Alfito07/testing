@@ -178,14 +178,63 @@ class EnhancedApp {
     this.API_URL =
       "https://script.google.com/macros/s/AKfycbyzcSTlhWoQylIoL013rttPjh3G3oE0saCGvM1dALRj/exec";
     this.currentUser = "Outbound_User";
-    this.jsonpCallbackId = 0;
+    this.initialized = false;
+    this.retryCount = 0;
+    this.maxRetries = 3;
 
-    this.init();
+    console.log("🔄 EnhancedApp constructor called");
+
+    // Delay initialization untuk pastikan DOM ready
+    setTimeout(() => {
+      this.init();
+    }, 100);
   }
 
   async init() {
-    console.log("🚀 Enhanced App Initializing...");
-    this.initEnhancedFeatures();
+    try {
+      console.log("🚀 Enhanced App Initializing...");
+
+      // Pastikan DOM elements sudah tersedia
+      if (!this.checkRequiredElements()) {
+        console.warn("⚠️ Some DOM elements not ready, retrying...");
+
+        if (this.retryCount < this.maxRetries) {
+          this.retryCount++;
+          setTimeout(() => this.init(), 500);
+          return;
+        } else {
+          throw new Error("Failed to initialize app: DOM elements not found");
+        }
+      }
+
+      this.initEnhancedFeatures();
+      this.initialized = true;
+
+      console.log("✅ Enhanced App Fully Initialized");
+      Utils.showToast("Aplikasi siap digunakan!", "success");
+    } catch (error) {
+      console.error("❌ App initialization failed:", error);
+      this.showError("Gagal memulai aplikasi: " + error.message);
+    }
+  }
+
+  checkRequiredElements() {
+    const requiredElements = [
+      "outboundTicketsList",
+      "ticketForm",
+      "inputSection",
+    ];
+
+    const missingElements = requiredElements.filter(
+      (id) => !document.getElementById(id)
+    );
+
+    if (missingElements.length > 0) {
+      console.warn("Missing elements:", missingElements);
+      return false;
+    }
+
+    return true;
   }
 
   jsonpCall(action, data = null) {
@@ -247,14 +296,27 @@ class EnhancedApp {
   initEnhancedFeatures() {
     console.log("🔧 Initializing enhanced features...");
 
-    // Initialize components
-    this.initTicketForm();
-    this.loadOutboundTickets();
+    try {
+      // Initialize components dengan error handling
+      this.initTicketForm();
 
-    // Auto-refresh
-    setInterval(() => this.loadOutboundTickets(), 30000);
+      // Load tickets dengan delay
+      setTimeout(() => {
+        this.loadOutboundTickets();
+      }, 1000);
 
-    console.log("✅ Enhanced features initialized");
+      // Auto-refresh setiap 30 detik
+      setInterval(() => {
+        if (this.initialized) {
+          this.loadOutboundTickets();
+        }
+      }, 30000);
+
+      console.log("✅ Enhanced features initialized");
+    } catch (error) {
+      console.error("❌ Enhanced features init failed:", error);
+      throw error;
+    }
   }
 
   /**
@@ -287,20 +349,49 @@ class EnhancedApp {
    * OUTBOUND - Load Pending Tickets
    */
   async loadOutboundTickets() {
-    try {
-      console.log("📋 Loading outbound tickets via JSONP...");
-      const result = await this.jsonpCall("get_pending_tickets");
-      console.log("✅ Tickets loaded via JSONP:", result);
+    // Jika app belum initialized, skip dulu
+    if (!this.initialized) {
+      console.log("⏳ App not ready, skipping ticket load");
+      return;
+    }
 
-      if (result.success && Array.isArray(result.data)) {
-        this.renderOutboundTickets(result.data);
-      } else {
-        this.renderOutboundTickets([]);
+    try {
+      console.log("📋 Loading outbound tickets...");
+
+      // Show loading state
+      const container = document.getElementById("outboundTicketsList");
+      if (container) {
+        container.innerHTML = `
+          <div class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="text-gray-500 mt-2">Memuat tiket...</p>
+          </div>
+        `;
       }
+
+      const tickets = await this.apiCall("get_pending_tickets");
+      console.log("✅ Tickets loaded:", tickets);
+      this.renderOutboundTickets(tickets);
     } catch (error) {
-      console.error("❌ Failed to load tickets via JSONP:", error);
+      console.error("❌ Failed to load tickets:", error);
       this.showError("Gagal memuat data tiket: " + error.message);
-      this.renderOutboundTickets([]);
+
+      // Show error state
+      const container = document.getElementById("outboundTicketsList");
+      if (container) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-red-500">
+            <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+            <p>Gagal memuat tiket</p>
+            <button 
+              onclick="window.refreshOutboundTickets()" 
+              class="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm"
+            >
+              <i class="fas fa-refresh mr-1"></i>Coba Lagi
+            </button>
+          </div>
+        `;
+      }
     }
   }
 
@@ -661,36 +752,186 @@ class EnhancedApp {
   }
 }
 
+// ✅ APP STATUS MONITOR
+class AppStatusMonitor {
+  constructor() {
+    this.checkInterval = null;
+    this.startMonitoring();
+  }
+
+  startMonitoring() {
+    this.checkInterval = setInterval(() => {
+      this.updateStatusIndicator();
+    }, 2000);
+
+    // Initial check
+    setTimeout(() => this.updateStatusIndicator(), 1000);
+  }
+
+  updateStatusIndicator() {
+    const statusElement = document.getElementById("appStatus");
+    const statusText = document.getElementById("statusText");
+
+    if (!statusElement || !statusText) return;
+
+    const status = window.checkAppStatus
+      ? window.checkAppStatus()
+      : {
+          appDefined: false,
+          appReady: false,
+          EnhancedAppDefined: false,
+          domReady: document.readyState === "complete",
+        };
+
+    if (status.appReady) {
+      statusElement.className =
+        "mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm";
+      statusText.innerHTML =
+        '<i class="fas fa-check-circle text-green-500 mr-1"></i> Aplikasi siap';
+    } else if (status.appDefined) {
+      statusElement.className =
+        "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm";
+      statusText.innerHTML =
+        '<i class="fas fa-spinner fa-spin text-yellow-500 mr-1"></i> Aplikasi loading...';
+    } else {
+      statusElement.className =
+        "mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm";
+      statusText.innerHTML =
+        '<i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Menunggu inisialisasi...';
+    }
+
+    statusElement.classList.remove("hidden");
+  }
+}
+
+// Start status monitor ketika DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  window.statusMonitor = new AppStatusMonitor();
+});
+
 // ✅ GLOBAL FUNCTIONS UNTUK HTML ONCLICK
 window.refreshOutboundTickets = () => {
-  if (window.app && window.app.loadOutboundTickets) {
-    window.app.loadOutboundTickets();
-  } else {
-    console.error("app not initialized");
+  try {
+    if (window.app && typeof window.app.loadOutboundTickets === "function") {
+      window.app.loadOutboundTickets();
+      Utils.showToast("Memuat ulang tiket...", "info");
+    } else {
+      console.warn("App belum siap, mencoba inisialisasi ulang...");
+      // Coba init ulang app
+      if (typeof EnhancedApp !== "undefined") {
+        window.app = new EnhancedApp();
+        setTimeout(() => {
+          if (window.app && window.app.loadOutboundTickets) {
+            window.app.loadOutboundTickets();
+          } else {
+            Utils.showToast("Silakan refresh halaman", "error");
+          }
+        }, 1000);
+      } else {
+        Utils.showToast(
+          "Aplikasi sedang loading, tunggu sebentar...",
+          "warning"
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Error refreshOutboundTickets:", error);
+    Utils.showToast("Error: " + error.message, "error");
   }
 };
 
 // ✅ INITIALIZE APP
 document.addEventListener("DOMContentLoaded", () => {
-  window.app = new EnhancedApp();
+  console.log("🚀 DOM Ready - Initializing Enhanced App...");
+
+  try {
+    // Tunggu sedikit untuk memastikan semua script loaded
+    setTimeout(() => {
+      if (typeof EnhancedApp !== "undefined") {
+        window.app = new EnhancedApp();
+        console.log("✅ Enhanced App initialized successfully");
+
+        // Tandai bahwa app sudah ready
+        document.body.setAttribute("data-app-ready", "true");
+
+        // Load tickets setelah init
+        setTimeout(() => {
+          if (window.app && window.app.loadOutboundTickets) {
+            window.app.loadOutboundTickets();
+          }
+        }, 2000);
+      } else {
+        console.error("❌ EnhancedApp class not found");
+        Utils.showToast("Error: Aplikasi gagal dimuat", "error");
+      }
+    }, 100);
+  } catch (error) {
+    console.error("❌ App initialization failed:", error);
+    Utils.showToast("Gagal memuat aplikasi: " + error.message, "error");
+  }
 });
+
+window.checkAppStatus = () => {
+  const status = {
+    appDefined: typeof window.app !== "undefined",
+    appReady:
+      window.app && typeof window.app.loadOutboundTickets === "function",
+    EnhancedAppDefined: typeof EnhancedApp !== "undefined",
+    domReady: document.readyState === "complete",
+  };
+
+  console.log("🔍 App Status:", status);
+  return status;
+};
 
 // ✅ Global functions for HTML onclick handlers
 window.showKeyboardShortcuts = () => {
-  if (window.app) {
-    window.app.showModal("shortcutsModal");
+  try {
+    if (window.app && window.app.showModal) {
+      window.app.showModal("shortcutsModal");
+    } else {
+      // Fallback langsung ke modal
+      const modal = document.getElementById("shortcutsModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        Utils.showToast("Buka keyboard shortcuts", "info");
+      }
+    }
+  } catch (error) {
+    console.error("Error showing shortcuts:", error);
   }
 };
 
 window.showAbout = () => {
-  if (window.app) {
-    window.app.showModal("aboutModal");
+  try {
+    if (window.app && window.app.showModal) {
+      window.app.showModal("aboutModal");
+    } else {
+      // Fallback langsung ke modal
+      const modal = document.getElementById("aboutModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        Utils.showToast("Tentang aplikasi", "info");
+      }
+    }
+  } catch (error) {
+    console.error("Error showing about:", error);
   }
 };
 
 window.closeModal = (modalId) => {
-  if (window.app) {
-    window.app.closeModal(modalId);
+  try {
+    if (window.app && window.app.closeModal) {
+      window.app.closeModal(modalId);
+    } else {
+      // Fallback langsung tutup modal
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add("hidden");
+      }
+    }
+  } catch (error) {
+    console.error("Error closing modal:", error);
   }
 };
 

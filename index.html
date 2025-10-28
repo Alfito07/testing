@@ -207,6 +207,7 @@
         </section>
 
         <!-- Outbound Dashboard Section -->
+        <!-- Outbound Dashboard Section -->
         <section id="outboundDashboard" class="mb-8">
           <div class="card-modern">
             <div class="flex justify-between items-center mb-6">
@@ -219,26 +220,31 @@
                 <span>Dashboard Outbound Team</span>
               </h3>
               <button
-                onclick="refreshOutboundTickets()"
+                onclick="window.refreshOutboundTickets()"
+                id="refreshTicketsBtn"
                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
                 <i class="fas fa-sync-alt"></i>
-                Refresh
+                <span id="refreshText">Refresh</span>
+                <span id="refreshSpinner" class="hidden">
+                  <i class="fas fa-spinner fa-spin"></i>
+                </span>
               </button>
             </div>
 
-            <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <div class="flex items-center gap-2 text-blue-700">
-                <i class="fas fa-info-circle"></i>
-                <p class="text-sm">
-                  Dashboard ini auto-refresh setiap 30 detik. Klik "Ambil Tiket"
-                  untuk assign ke Anda.
-                </p>
+            <!-- Status Indicator -->
+            <div id="appStatus" class="mb-4 p-3 rounded-lg text-sm hidden">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-circle text-gray-400 text-xs"></i>
+                <span id="statusText">Menyiapkan aplikasi...</span>
               </div>
             </div>
 
             <div id="outboundTicketsList" class="space-y-4">
-              <!-- Tickets will be loaded here automatically -->
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                <p>Menyiapkan dashboard...</p>
+              </div>
             </div>
           </div>
         </section>

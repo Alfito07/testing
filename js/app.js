@@ -179,7 +179,7 @@ class MessageGeneratorApp {
 class EnhancedApp {
   constructor() {
     this.API_URL =
-      "https://script.google.com/macros/s/AKfycby9hs3fUrd0czk4Ga1S9x_GD7LOZ5Pth1CZxaJux4DwZe_Vcy4C3G6m2_bSz_kSJmprhg/exec";
+      "https://script.google.com/macros/s/AKfycbxiJ0Jg6lk9WJtRRVSU0PxPZ-q1pVtDn0OLIXI077yDnIF0bBvY1mNdO1hrlw3TLa1OXw/exec";
     this.currentUser = "Outbound_User";
     this.initialized = false;
     this.retryCount = 0;
